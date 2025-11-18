@@ -1,160 +1,128 @@
-// server.js
+// server.js (drop this in project root)
+'use strict';
+
 const express = require('express');
-const path = require('path');
-const bcrypt = require('bcrypt');
-const sqlite3 = require('sqlite3').verbose();
-const bodyParser = require('body-parser');
 const session = require('express-session');
-const SQLiteStore = require('connect-sqlite3')(session);
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const DB_FILE = path.join(__dirname, 'users.db');
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+// If you're running behind a proxy (Render / Cloudflare), keep this.
+app.set('trust proxy', 1);
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// serve public folder (static assets, index.html, dashboard.html, css, images)
+app.use(express.static(path.join(__dirname, 'public')));
+
+const SECRET = process.env.SESSION_SECRET || 'please-change-this-secret';
+
+// Simple in-memory users — update here
+const USERS = {
+  demo: { password: 'demo123', display: 'Demo User' },
+  '6376_IRSpreetisinha': { password: 'Jaiguruji@0333#alpha', display: 'Friend User' }
+};
 
 app.use(session({
-  store: new SQLiteStore({ db: 'sess.sqlite', dir: __dirname }),
-  secret: process.env.SESSION_SECRET || 'change_this_secret_in_prod',
+  name: 'sid',
+  secret: SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
+    // secure cookies only in production (HTTPS). trust proxy = true above ensures req.secure works behind proxy.
+    secure: (process.env.NODE_ENV === 'production'),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
-const db = new sqlite3.Database(DB_FILE);
-db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT UNIQUE,
-      password_hash TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-});
-
-function findUser(username) {
-  return new Promise((resolve, reject) => {
-    db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) => {
-      if (err) return reject(err);
-      resolve(row);
-    });
-  });
+function requireLogin(req, res, next) {
+  if (!req.session || !req.session.user) {
+    return res.redirect('/');
+  }
+  next();
 }
 
-function createUser(username, password) {
-  return bcrypt.hash(password, 10).then(hash => {
-    return new Promise((resolve, reject) => {
-      db.run('INSERT INTO users(username, password_hash) VALUES(?,?)', [username, hash], function (err) {
-        if (err) return reject(err);
-        resolve({ id: this.lastID, username });
-      });
-    });
-  });
+// Helper: read login field in a forgiving way (case differences)
+function readLoginFields(body) {
+  // accept ssoid, SSOID, ssOId, ssoId, username
+  const ssoid = body.ssoid || body.SSOID || body.ssoId || body.sso || body.username || body.user;
+  const password = body.password || body.pass || body.pwd || body.Password;
+  return { ssoid, password };
 }
 
-function updatePassword(username, newPassword) {
-  return bcrypt.hash(newPassword, 10).then(hash => {
-    return new Promise((resolve, reject) => {
-      db.run('UPDATE users SET password_hash = ? WHERE username = ?', [hash, username], function (err) {
-        if (err) return reject(err);
-        resolve(this.changes);
-      });
-    });
-  });
-}
+// POST /login
+app.post('/login', (req, res) => {
+  const { ssoid, password } = readLoginFields(req.body);
 
-// seed default users (only if missing)
-(async function seed() {
-  try {
-    const rows = await new Promise((res, rej) => db.all('SELECT username FROM users', (e, r) => e ? rej(e) : res(r)));
-    const existing = (rows || []).map(r => r.username);
-    const wanted = [
-      { u: 'admin', p: 'demo123' },
-      { u: 'demo', p: 'demo123' },
-      { u: '6376_IRSpreetisinha', p: 'Jaiguruji@0333#alpha' }
-    ];
-    for (const w of wanted) {
-      if (!existing.includes(w.u)) {
-        try { await createUser(w.u, w.p); console.log('Created user', w.u); } catch(e){ /* ignore */ }
-      }
-    }
-    console.log('Seeding complete');
-  } catch (e) {
-    console.warn('Seed error', e);
+  if (!ssoid || !password) {
+    // you can add query param for error message handling in client
+    return res.redirect('/?err=missing');
   }
-})();
 
-// auth endpoints
-app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body || {};
-  if (!username || !password) return res.status(400).json({ error: 'missing' });
-  try {
-    const user = await findUser(username);
-    if (!user) return res.status(401).json({ error: 'invalid' });
-    const ok = await bcrypt.compare(password, user.password_hash);
-    if (!ok) return res.status(401).json({ error: 'invalid' });
-    req.session.user = { id: user.id, username: user.username };
-    return res.json({ ok: true, username: user.username });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ error: 'server' });
+  const user = USERS[ssoid];
+  if (!user || user.password !== password) {
+    return res.redirect('/?err=invalid');
   }
-});
 
-app.post('/api/register', async (req, res) => {
-  const { username, password } = req.body || {};
-  if (!username || !password) return res.status(400).json({ error: 'missing' });
-  try {
-    await createUser(username, password);
-    return res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ error: 'could_not_create' });
-  }
-});
+  req.session.user = { id: ssoid, display: user.display || ssoid };
 
-app.post('/api/change-password', async (req, res) => {
-  if (!req.session.user) return res.status(403).json({ error: 'not_logged_in' });
-  const username = req.session.user.username;
-  const { newPassword } = req.body || {};
-  if (!newPassword) return res.status(400).json({ error: 'missing' });
-  try {
-    await updatePassword(username, newPassword);
-    return res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ error: 'server' });
-  }
-});
-
-app.post('/api/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) console.warn(err);
-    res.json({ ok: true });
+  // save then redirect to dashboard route (which serves dashboard.html)
+  req.session.save(err => {
+    if (err) console.error('session save error', err);
+    return res.redirect('/dashboard'); // protected route below
   });
 });
 
-function requireAuth(req, res, next) {
-  if (req.session && req.session.user) return next();
-  if (req.accepts('html')) return res.redirect('/');
-  return res.status(401).json({ error: 'unauthorized' });
-}
+// GET /logout
+app.get('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.clearCookie('sid');
+    res.redirect('/');
+  });
+});
 
-app.get('/dashboard.html', requireAuth, (req, res) => {
+// GET /dashboard (protected)
+app.get('/dashboard', requireLogin, (req, res) => {
+  // no caching for dashboard
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
-app.use('/', express.static(path.join(__dirname, 'public')));
-
-app.get('/api/whoami', (req, res) => {
-  if (req.session && req.session.user) return res.json({ user: req.session.user });
-  res.json({ user: null });
+// simple API to return current user session (useful for app front-end)
+app.get('/api/me', requireLogin, (req, res) => {
+  res.json({ user: req.session.user });
 });
 
-app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
+/*
+  Fallback handling:
+  - If user requests an HTML route (user clicked a link or refreshed) -> serve public/index.html
+  - If it's a request for an asset (starts with /api, /static, or wants JSON) -> return 404 to avoid redirect loops
+*/
+app.use((req, res, next) => {
+  const accept = req.headers.accept || '';
+
+  // if client expects JSON or it's an API path -> 404 (so assets don't get redirected)
+  if (req.path.startsWith('/api') || accept.includes('application/json')) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+
+  // If the request target looks like a static asset (has an extension), return 404
+  if (path.extname(req.path)) {
+    return res.status(404).send('Not found');
+  }
+
+  // otherwise serve index.html (Single Page fallback or root)
+  const indexFile = path.join(__dirname, 'public', 'index.html');
+  if (fs.existsSync(indexFile)) {
+    return res.sendFile(indexFile);
+  }
+
+  return res.status(404).send('Not found');
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`listening on ${PORT}`));
