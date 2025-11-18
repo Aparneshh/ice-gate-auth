@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Portal — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --nav-blue:#114b7a;       /* header color */
+      --header-blue:var(--nav-blue);
+      --muted:#6b7280;
+      --header-height:56px;
+      --logo-max-height:100px;  /* both logos share this */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:#f3f4f6;color:#111;-webkit-font-smoothing:antialiased}
+
+    /* top header */
+    .topbar{
+      width:100%;
+      background:linear-gradient(90deg,var(--header-blue),#0f4d86);
+      color:#fff;
+      height:var(--header-height);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0 12px;
+      box-shadow:0 4px 14px rgba(2,6,23,0.06);
+      position:sticky;
+      top:0;
+      z-index:40;
+    }
+    .topbar .inner{
+      width:100%;max-width:1260px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .topbar .left{font-weight:700;font-size:15px}
+    .topbar .center{font-weight:700;font-size:14px}
+    .topbar .right{font-weight:700;font-size:13px;white-space:nowrap}
+
+    @media(max-width:760px){
+      .topbar{height:auto;padding:10px}
+      .topbar .inner{flex-direction:column;align-items:flex-start;gap:6px}
+    }
+
+    .page-wrap { padding-top: calc(var(--header-height) + 8px); }
+
+    /* brand row with three columns: left (emblem), center (logo), right (spacer) */
+    .brand-row {
+      width:100%;
+      max-width:1260px;
+      margin:10px auto 0;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:8px 12px;
+    }
+    .brand-left, .brand-center, .brand-right {
+      display:flex;
+      align-items:center;
+    }
+    /* ensure equal column widths so center is truly centered */
+    .brand-left, .brand-center, .brand-right { flex:1; }
+    .brand-left { justify-content:flex-start; }
+    .brand-center { justify-content:center; }
+    .brand-right { justify-content:flex-end; }
+
+    /* emblem: no forced square, image controls size via .logo-eq */
+    .emblem { display:flex; align-items:center; justify-content:center; padding:6px; border-radius:8px; background:transparent; }
+    .logo-eq { max-height: var(--logo-max-height); width:auto; height:auto; object-fit:contain; display:block; }
+
+    /* second header — single centered HOME */
+    .second-header { width:100%; background:linear-gradient(90deg,var(--nav-blue),#0f4d86); color:#fff; margin-top:8px; box-shadow:0 2px 8px rgba(2,6,23,0.04); }
+    .second-header .inner { max-width:1260px; margin:0 auto; display:flex; align-items:center; justify-content:center; padding:12px 16px; font-weight:800; color:#fff; font-size:16px; letter-spacing:0.6px; }
+
+    /* page main: logo is on brand-row, login centered below */
+    .page-main { width:100%; max-width:1260px; margin:22px auto 60px; padding:18px; min-height:420px; display:flex; align-items:center; justify-content:center; }
+    .loginCard { width:100%; max-width:420px; background:#fff; border-radius:10px; padding:24px; border:1px solid #eef6fb; box-shadow:0 8px 20px rgba(2,6,23,0.04); }
+    .loginCard h2 { margin:0 0 8px 0; font-size:20px; }
+    label { display:block; font-size:13px; color:#374151; margin-bottom:6px; margin-top:10px; }
+    input { width:100%; padding:10px; border-radius:8px; border:1px solid #e6eef6; font-size:14px; }
+    .actions { display:flex; gap:10px; margin-top:16px; flex-direction:column; }
+    .btn { padding:10px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
+    .btn.primary { background:var(--header-blue); color:#fff; }
+    .btn.ghost { background:#fff; border:1px solid #dbeaf8; color:var(--header-blue); }
+    .error { color:#b91c1c; font-size:13px; text-align:center; margin-top:10px; }
+
+    @media(max-width:900px){
+      .brand-row { flex-direction:row; align-items:center; justify-content:space-between; padding:8px; }
+      .logo-eq { max-height:80px; }
+      .page-main { margin:18px 16px; min-height:420px; }
+    }
+    @media(max-width:520px){
+      .logo-eq { max-height:72px; }
+      .second-header .inner { font-size:15px; padding:10px; }
+    }
+    /* language toggle button */
+    .lang-btn {
+      margin-left: 16px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s ease-in-out;
+    }
+    .page-main{
+      width:100%;
+      max-width:1460px;
+      margin:40px auto 60px;
+      padding:18px;
+      min-height:480px;
+
+    /* background only to login area */
+      background: url('ship.jpg') no-repeat center center;
+      background-size: cover;
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:12px;
+    }
+  </style>
+</head>
+<body>
+  <!-- top header -->
+  <header class="topbar" role="banner" aria-label="Top header">
+    <div class="inner">
+      <div class="left">Indian Customs National Trade Portal 2.0</div>
+      <div class="center" id="indiaTimeHeader">Loading time...</div>
+      <div class="right">
+        HELP | 24x7 Helpdesk - 1800-3010-1000
+
+        <!-- language toggle button -->
+        <button id="langToggle" class="lang-btn">
+        हिन्दी
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-wrap">
+
+    <!-- brand-row: emblem (left), logo (center), spacer (right) -->
+    <div class="brand-row" role="region" aria-label="Brand area">
+      <div class="brand-left">
+        <div class="emblem" title="Emblem placeholder">
+          <!-- replace logo-defence.png with your emblem; it will match center size -->
+          <img src="ministry.png" alt="Emblem" class="logo-eq">
+        </div>
+      </div>
+
+      <div class="brand-center">
+        <!-- center logo (same visual height as emblem) -->
+        <img src="icegate2.0.png" alt="Portal Logo" class="logo-eq">
+      </div>
+
+      <div class="brand-right" aria-hidden="true"></div>
+    </div>
+
+    <!-- second full-width header with HOME centered -->
+    <div class="second-header" role="navigation" aria-label="Main navigation">
+      <div class="inner">HOME</div>
+    </div>
+
+    <!-- main area: login centered under the brand-row -->
+    <main class="page-main" role="main">
+      <section class="loginCard" aria-labelledby="loginTitle">
+        <h2 id="loginTitle">Welcome to ICEGATE</h2>
+
+        <form id="authForm" autocomplete="on">
+          <label for="username">SSOID</label>
+          <input id="username" name="username" type="text" required>
+
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" required>
+
+          <div class="actions">
+            <button type="submit" class="btn primary" id="authSubmit">Login</button>
+          </div>
+
+          <div id="authError" class="error" role="alert" aria-live="polite"></div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Update India time in header (Asia/Kolkata)
+    function updateIndiaTime() {
+      const now = new Date();
+      const time = new Intl.DateTimeFormat('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      }).format(now);
+      const date = new Intl.DateTimeFormat('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }).format(now);
+      const el = document.getElementById('indiaTimeHeader');
+      if (el) el.textContent = time + ' — ' + date;
+    }
+    updateIndiaTime();
+    setInterval(updateIndiaTime, 1000);
+
+    // Authentication (localStorage)
+    (function(){
+      const form = document.getElementById('authForm');
+      const error = document.getElementById('authError');
+
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        error.textContent = '';
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+
+        if(!username || !password){ error.textContent = 'Please fill required fields.'; return; }
+
+        const users = JSON.parse(localStorage.getItem('fs_users') || '[]');
+        const found = users.find(u => u.username === username);
+
+        if(found){
+          if(found.password !== password){ error.textContent = 'Incorrect password.'; return; }
+          localStorage.setItem('fs_session', JSON.stringify({ username: found.username, displayName: found.displayName || found.username }));
+          window.location.href = 'dashboard.html';
+          return;
+        }
+
+        // create account if not found (simple demo behavior)
+        users.push({ username, displayName: username, password });
+        localStorage.setItem('fs_users', JSON.stringify(users));
+        localStorage.setItem('fs_session', JSON.stringify({ username, displayName: username }));
+        window.location.href = 'dashboard.html';
+      });
+
+      // redirect if already logged in
+      const sess = JSON.parse(localStorage.getItem('fs_session') || 'null');
+      if(sess && sess.username) window.location.href = 'dashboard.html';
+    })();
+    // LANGUAGE TOGGLE — simple front-end switch (English <-> Hindi)
+    const langBtn = document.getElementById('langToggle');
+    let hindi = false;
+
+    langBtn.addEventListener('click', () => {
+    hindi = !hindi;
+
+    // change button text
+    langBtn.textContent = hindi ? "English" : "हिन्दी";
+
+    // change header text
+    document.querySelector('.topbar .left').textContent = hindi
+    ? "भारतीय सीमा शुल्क राष्ट्रीय व्यापार पोर्टल 2.0"
+    : "Indian Customs National Trade Portal 2.0";
+
+    // change help text
+    document.querySelector('.topbar .right').firstChild.textContent = hindi
+    ? "सहायता | 24x7 हेल्पडेस्क - 1800-3010-1000 "
+    : "HELP | 24x7 Helpdesk - 1800-3010-1000 ";
+
+    // change HOME nav
+    document.querySelector('.second-header .inner').textContent = hindi
+      ? "होम"
+      : "HOME";
+
+    // change login text
+    document.getElementById('loginTitle').textContent = hindi
+      ? "लॉगिन करें"
+      : "Welcome to ICEGATE";
+
+    document.querySelector("label[for='username']").textContent = hindi
+      ? "एसएसओआईडी"
+      : "SSOID";
+
+    document.querySelector("label[for='password']").textContent = hindi
+      ? "पासवर्ड"
+      : "Password";
+
+    document.getElementById('authSubmit').textContent = hindi
+      ? "लॉगिन"
+      : "Login";
+    });
+  </script>
+</body>
+</html>
