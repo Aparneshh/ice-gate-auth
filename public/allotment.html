@@ -293,8 +293,26 @@
     @media(max-width:520px) {
       .brand-row {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+      }
+
+      .brand-left, .brand-center, .brand-right {
+        justify-content: center;
+        text-align: center;
+      }
+
+      .topbar-inner {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .detail-table, .lot-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        width: 100%;
       }
     }
   </style>

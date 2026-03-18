@@ -289,7 +289,18 @@
 
       .brand-row {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+      }
+
+      .brand-left, .brand-center, .brand-right {
+        justify-content: center;
+        text-align: center;
+      }
+
+      .topbar-inner {
+        flex-direction: column;
         gap: 10px;
       }
     }
@@ -422,6 +433,16 @@
 
       .modal {
         max-width: 92%;
+      }
+    }
+
+    @media(max-width:520px) {
+      .tender-row {
+        flex-direction: column;
+        gap: 4px;
+      }
+      .row-key {
+        width: 100%;
       }
     }
   </style>
