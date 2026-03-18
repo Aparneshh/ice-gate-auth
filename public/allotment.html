@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Allotment Details — Controller General of Accounts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600,700,800,900&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --nav-blue: #114b7a;
+      --muted: #6b7280;
+      --page-bg: #f8fafc;
+      --tile-bg: #f3f8fc;
+      --tile-border: rgba(17, 75, 122, 0.08);
+      --accent: #0f4d86;
+      --row-border: #e6eef6;
+    }
+
+    html.fs-small {
+      font-size: 14px;
+    }
+
+    html.fs-normal {
+      font-size: 16px;
+    }
+
+    html.fs-large {
+      font-size: 18px;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, Arial, sans-serif;
+      background: var(--page-bg);
+      color: #0f1724;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+    }
+
+    /* top header */
+    .topbar-light {
+      width: 100%;
+      background: #f3f4f6;
+      border-bottom: 1px solid rgba(2, 6, 23, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 12px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .topbar-inner {
+      width: 100%;
+      max-width: 1260px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .font-btn {
+      background: transparent;
+      color: var(--nav-blue);
+      border: 1px solid rgba(17, 75, 122, 0.12);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-weight: 800;
+      cursor: pointer;
+      min-width: 36px;
+      text-align: center;
+    }
+
+    .font-btn.active {
+      background: var(--nav-blue);
+      color: #fff;
+    }
+
+    .back-btn {
+      margin-left: 12px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(17, 75, 122, 0.1);
+      background: white;
+      color: var(--nav-blue);
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .back-btn:hover {
+      background: var(--nav-blue);
+      color: #fff;
+    }
+
+    .container {
+      max-width: 1260px;
+      margin: 18px auto;
+      padding: 12px;
+    }
+
+    /* brand row */
+    .brand-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #fff;
+      padding: 14px 18px;
+      border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(2, 6, 23, 0.04);
+    }
+
+    .brand-left,
+    .brand-center,
+    .brand-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-left,
+    .brand-center,
+    .brand-right {
+      flex: 1;
+    }
+
+    .brand-left {
+      justify-content: flex-start;
+    }
+
+    .brand-center {
+      justify-content: center;
+    }
+
+    .brand-right {
+      justify-content: flex-end;
+      text-align: right;
+    }
+
+    .logo img {
+      max-height: 72px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    .org-title {
+      color: var(--nav-blue);
+      font-weight: 800;
+      font-size: 1.25rem;
+      margin-bottom: 4px;
+    }
+
+    .org-sub {
+      color: var(--nav-blue);
+      font-weight: 600;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    /* NAV blue header */
+    .nav-blue {
+      width: 100%;
+      background: linear-gradient(90deg, var(--nav-blue), #0f4d86);
+      color: #fff;
+      margin-top: 12px;
+      box-shadow: 0 2px 6px rgba(2, 6, 23, 0.06);
+    }
+
+    .nav-blue .inner {
+      max-width: 1260px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: 0.6px;
+    }
+
+    /* section title bar */
+    .section-title-bar {
+      background: var(--nav-blue);
+      color: #fff;
+      padding: 12px 18px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: 0.4px;
+      border-radius: 6px 6px 0 0;
+      margin-top: 22px;
+    }
+
+    /* detail tables */
+    .detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid var(--row-border);
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      overflow: hidden;
+    }
+
+    .detail-table td,
+    .detail-table th {
+      padding: 10px 14px;
+      border: 1px solid var(--row-border);
+      font-size: 0.95rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .detail-table .label-cell {
+      background: #f3f8fc;
+      font-weight: 700;
+      color: #334155;
+      width: 30%;
+    }
+
+    .detail-table .value-cell {
+      color: #0f1724;
+    }
+
+    /* lot details table */
+    .lot-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid var(--row-border);
+      border-top: none;
+      overflow: hidden;
+    }
+
+    .lot-table th {
+      background: var(--nav-blue);
+      color: #fff;
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-align: left;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .lot-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--row-border);
+      font-size: 0.9rem;
+      vertical-align: top;
+      color: #0f1724;
+    }
+
+    .lot-table tr:nth-child(even) {
+      background: #f8fbfe;
+    }
+
+    .lot-table tr:hover {
+      background: #eef4fa;
+    }
+
+    .lot-label {
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .lot-value {
+      color: #0f1724;
+    }
+
+    @media(max-width:900px) {
+      .detail-table .label-cell {
+        width: 40%;
+      }
+    }
+
+    @media(max-width:520px) {
+      .brand-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- top controls -->
+  <div class="topbar-light" role="banner" aria-label="Top controls">
+    <div class="topbar-inner">
+      <div class="topbar-left"></div>
+
+      <div class="topbar-right" aria-hidden="false">
+        <button class="font-btn" id="btnAPlus" title="Increase text size">A+</button>
+        <button class="font-btn active" id="btnA" title="Normal text size">A</button>
+        <button class="font-btn" id="btnAMinus" title="Decrease text size">A-</button>
+
+        <a class="back-btn" href="dashboard.html" title="Back to Dashboard">← Back</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- logo and heading row -->
+    <div class="brand-row" role="region" aria-label="Organization header">
+      <div class="brand-left">
+        <div class="logo">
+          <img src="bharatkoshlogo.png" alt="Organization Logo">
+        </div>
+      </div>
+
+      <div class="brand-center" aria-hidden="true"></div>
+
+      <div class="brand-right">
+        <div>
+          <div class="org-title">Controller General of Accounts</div>
+          <div class="org-sub">Dept. Of Expenditure, Ministry of Finance</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAV blue header -->
+    <div class="nav-blue" role="navigation" aria-label="Main nav">
+      <div class="inner">ALLOTMENT DETAILS</div>
+    </div>
+
+    <!-- ==================== AUCTION DETAILS ==================== -->
+    <div class="section-title-bar">Auction Details</div>
+    <table class="detail-table">
+      <tr>
+        <td class="label-cell">Auction No</td>
+        <td class="value-cell" colspan="3">MSTC/WRO/Commissioner Of Customs (General), Mumbai-I/14/Ballard
+          Estate/10-11/7600[34431]</td>
+      </tr>
+      <tr>
+        <td class="label-cell">Opening Date &amp; Time</td>
+        <td class="value-cell" colspan="3">31-01-2011::11:00:00</td>
+      </tr>
+      <tr>
+        <td class="label-cell">Closing Date &amp; Time</td>
+        <td class="value-cell">Scheduled Time 31-01-2011::16:00:00</td>
+        <td class="label-cell" style="width:15%;">Closed At</td>
+        <td class="value-cell">31-01-2011::16:00:00</td>
+      </tr>
+      <tr>
+        <td class="label-cell">Inspection From Date</td>
+        <td class="value-cell" colspan="3">20-01-2011</td>
+      </tr>
+      <tr>
+        <td class="label-cell">Inspection Closing Date</td>
+        <td class="value-cell" colspan="3">28-01-2011</td>
+      </tr>
+    </table>
+
+    <!-- ==================== SELLER DETAILS ==================== -->
+    <div class="section-title-bar">Seller Details</div>
+    <table class="detail-table">
+      <tr>
+        <td class="label-cell">Seller/Company Name</td>
+        <td class="value-cell">Commissioner Of Customs (General), Mumbai-I</td>
+      </tr>
+      <tr>
+        <td class="label-cell">Location</td>
+        <td class="value-cell">Ballard Estate</td>
+      </tr>
+      <tr>
+        <td class="label-cell">Street</td>
+        <td class="value-cell">New Custom House, Ballard Estate</td>
+      </tr>
+      <tr>
+        <td class="label-cell">City</td>
+        <td class="value-cell">Mumbai - 400001</td>
+      </tr>
+      <tr>
+        <td class="label-cell">Country</td>
+        <td class="value-cell">INDIA</td>
+      </tr>
+      <tr>
+        <td class="label-cell">Telephone</td>
+        <td class="value-cell">02222638231-325</td>
+      </tr>
+      <tr>
+        <td class="label-cell">Fax</td>
+        <td class="value-cell">02222757512</td>
+      </tr>
+      <tr>
+        <td class="label-cell">Email</td>
+        <td class="value-cell">aksingh666@yahoo.com</td>
+      </tr>
+      <tr>
+        <td class="label-cell">Contact Person</td>
+        <td class="value-cell">Assistant Commissioner</td>
+      </tr>
+    </table>
+
+    <!-- ==================== LOT DETAILS ==================== -->
+    <div class="section-title-bar">Lot Details</div>
+    <table class="lot-table">
+      <thead>
+        <tr>
+          <th style="width:6%;">LOT NO</th>
+          <th style="width:10%;">LOT NAME</th>
+          <th style="width:34%;">LOT DESC</th>
+          <th style="width:8%;">QUANTITY</th>
+          <th style="width:10%;">ED/ST/VAT</th>
+          <th style="width:32%;">LOCATION</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Lot 01 -->
+        <tr>
+          <td rowspan="2"><span class="lot-label">01</span></td>
+          <td rowspan="2">Super Bike</td>
+          <td>Super Bike. Reg.No.MH-06-AP-4633 Model: Suzuki Hayabusa/2008.</td>
+          <td rowspan="2">1 NO</td>
+          <td rowspan="2">As Applicable / 12.5%</td>
+          <td rowspan="2">Ground Floor, DRI office, 13, Sir Vithaldas Thakersey Marg, Opp. Patkar Hall, New Marine
+            Lines, Mumbai</td>
+        </tr>
+        <tr>
+          <td>DRI F.No./Bond No.:DRI/MZU/E/1/2009.</td>
+        </tr>
+
+        <!-- Lot 02 -->
+        <tr>
+          <td rowspan="2"><span class="lot-label">02</span></td>
+          <td rowspan="2">Super Bike</td>
+          <td>Super Bike. Reg. No MH-06-AR-800 Model: Suzuki VZR 1800/2007.</td>
+          <td rowspan="2">1 NO</td>
+          <td rowspan="2">As Applicable / 12.5%</td>
+          <td rowspan="2">Ground Floor, DRI office, 13, Sir Vithaldas Thakersey Marg, Opp. Patkar Hall, New Marine
+            Lines, Mumbai</td>
+        </tr>
+        <tr>
+          <td>DRI F.No./Bond No.:DRI/MZU/E/1/2009.</td>
+        </tr>
+
+        <!-- Lot 03 -->
+        <tr>
+          <td rowspan="2"><span class="lot-label">03</span></td>
+          <td rowspan="2">Super Bike</td>
+          <td>Super Bike. Reg. No. MH-02-BC-5057 Model: Suzuki Hayabusa/2007.</td>
+          <td rowspan="2">1 NO</td>
+          <td rowspan="2">As Applicable / 12.5%</td>
+          <td rowspan="2">Ground Floor, DRI office, 13, Sir Vithaldas Thakersey Marg, Opp. Patkar Hall, New Marine
+            Lines, Mumbai</td>
+        </tr>
+        <tr>
+          <td>DRI F.No./Bond No.:DRI/MZU/E/1/2009.</td>
+        </tr>
+
+        <!-- Lot 04 -->
+        <tr>
+          <td rowspan="2"><span class="lot-label">04</span></td>
+          <td rowspan="2">Super Bike</td>
+          <td>Super Bike. Reg.No. MH-06-AP-7038 Model: Suzuki Hayabusa/2007.</td>
+          <td rowspan="2">1 NO</td>
+          <td rowspan="2">As Applicable / 12.5%</td>
+          <td rowspan="2">Ground Floor, DRI office, 13, Sir Vithaldas Thakersey Marg, Opp. Patkar Hall, New Marine
+            Lines, Mumbai</td>
+        </tr>
+        <tr>
+          <td>DRI F.No./Bond No.:DRI/MZU/E/1/2009.</td>
+        </tr>
+
+        <!-- Lot 05 -->
+        <tr>
+          <td rowspan="2"><span class="lot-label">05</span></td>
+          <td rowspan="2">Super Bike</td>
+          <td>Super Bike. Unregistered Chassis No.- 001130 Model: Sanyang/2009.</td>
+          <td rowspan="2">1 NO</td>
+          <td rowspan="2">As Applicable / 12.5%</td>
+          <td rowspan="2">Ground Floor, DRI office, 13, Sir Vithaldas Thakersey Marg, Opp. Patkar Hall, New Marine
+            Lines, Mumbai</td>
+        </tr>
+        <tr>
+          <td>DRI F.No./Bond No.:DRI/MZU/E/1/2009.</td>
+        </tr>
+
+        <!-- Lot 06 -->
+        <tr>
+          <td rowspan="2"><span class="lot-label">06</span></td>
+          <td rowspan="2">Super Bike</td>
+          <td>Super Bike. Reg.No. MH-06-AP-6183 Model: Harley Davidson Cruiser/2007.</td>
+          <td rowspan="2">1 NO</td>
+          <td rowspan="2">As Applicable / 12.5%</td>
+          <td rowspan="2">Ground Floor, DRI office, 13, Sir Vithaldas Thakersey Marg, Opp. Patkar Hall, New Marine
+            Lines, Mumbai</td>
+        </tr>
+        <tr>
+          <td>DRI F.No./Bond No.:DRI/MZU/E/1/2009.</td>
+        </tr>
+
+        <!-- Lot 07 -->
+        <tr>
+          <td rowspan="2"><span class="lot-label">07</span></td>
+          <td rowspan="2">Super Bike</td>
+          <td>Super Bike. Reg.No. MH-02-BE-5049 Model: Yamaha 1000/2008.</td>
+          <td rowspan="2">1 NO</td>
+          <td rowspan="2">As Applicable / 12.5%</td>
+          <td rowspan="2">Ground Floor, DRI office, 13, Sir Vithaldas Thakersey Marg, Opp. Patkar Hall, New Marine
+            Lines, Mumbai</td>
+        </tr>
+        <tr>
+          <td>DRI F.No./Bond No.:DRI/MZU/E/1/2009.</td>
+        </tr>
+
+        <!-- Lot 08 -->
+        <tr>
+          <td rowspan="2"><span class="lot-label">08</span></td>
+          <td rowspan="2">Super Bike</td>
+          <td>Super Bike. Reg.No. MH-02-BE-5597 Model: Yamaha 1000/2008.</td>
+          <td rowspan="2">1 NO</td>
+          <td rowspan="2">As Applicable / 12.5%</td>
+          <td rowspan="2">Ground Floor, DRI office, 13, Sir Vithaldas Thakersey Marg, Opp. Patkar Hall, New Marine
+            Lines, Mumbai</td>
+        </tr>
+        <tr>
+          <td>DRI F.No./Bond No.:DRI/MZU/E/1/2009.</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // font size controls
+      document.documentElement.classList.remove('fs-small', 'fs-large');
+      document.documentElement.classList.add('fs-normal');
+
+      const btnAPlus = document.getElementById('btnAPlus');
+      const btnA = document.getElementById('btnA');
+      const btnAMinus = document.getElementById('btnAMinus');
+
+      function setFontSize(size) {
+        document.documentElement.classList.remove('fs-small', 'fs-normal', 'fs-large');
+        document.documentElement.classList.add(size);
+        btnAPlus.classList.toggle('active', size === 'fs-large');
+        btnA.classList.toggle('active', size === 'fs-normal');
+        btnAMinus.classList.toggle('active', size === 'fs-small');
+        try { localStorage.setItem('ui_font_size', size); } catch (e) { }
+      }
+      if (btnAPlus) btnAPlus.addEventListener('click', () => setFontSize('fs-large'));
+      if (btnA) btnA.addEventListener('click', () => setFontSize('fs-normal'));
+      if (btnAMinus) btnAMinus.addEventListener('click', () => setFontSize('fs-small'));
+      try {
+        const saved = localStorage.getItem('ui_font_size');
+        if (saved === 'fs-large' || saved === 'fs-small' || saved === 'fs-normal') setFontSize(saved);
+      } catch (e) { }
+    });
+  </script>
+</body>
+
+</html>
