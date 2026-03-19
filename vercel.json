@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "public": true,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/public/$1" }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "status": 404, "dest": "/public/404.html" }
+  ]
+}
