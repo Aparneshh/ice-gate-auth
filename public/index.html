@@ -175,12 +175,12 @@
       <section class="loginCard" aria-labelledby="loginTitle">
         <h2 id="loginTitle">Welcome to ICEGATE</h2>
 
-        <form id="authForm" autocomplete="on">
+        <form id="authForm" autocomplete="off">
           <label for="username">SSOID</label>
-          <input id="username" name="username" type="text" required>
+          <input id="username" name="username" type="text" autocapitalize="none" autocorrect="off" spellcheck="false" required>
 
           <label for="password">Password</label>
-          <input id="password" name="password" type="password" required>
+          <input id="password" name="password" type="password" autocapitalize="none" autocorrect="off" spellcheck="false" required>
 
           <div class="actions">
             <button type="submit" class="btn primary" id="authSubmit">Login</button>
@@ -222,7 +222,7 @@
   (function(){
     // allowed static users (edit here if you want different credentials)
     const ALLOWED = {
-      '##Alpha-7': { password: '!@#$%^&*04231826062301', display: 'Admin User' }
+      '##Alpha-7': { password: '##Alph@04321011', display: 'Admin User' }
     };
 
     const SESSION_KEY = 'icegate_session_v1';
